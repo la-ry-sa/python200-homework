@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 # --- Pandas ---
 # Pandas Q1
@@ -83,3 +84,57 @@ print(f"Array standard deviation: {arr3.std()}")
 arr4 = np.random.normal(0, 1, 200)
 print(f"Array mean: {arr4.mean()}")
 print(f"Array standard deviation: {arr4.std()}")
+
+#---- Matplotlib ---
+# Matplotlib Q1
+
+x = [0, 1, 2, 3, 4, 5]
+y = [0, 1, 4, 9, 16, 25]
+
+plt.plot(x, y)
+plt.title("Squares")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.show()
+
+# Matplotlib Q2
+
+subjects = ["Math", "Science", "English", "History"]
+scores   = [88, 92, 75, 83]
+
+plt.bar(subjects, scores)
+plt.title("Subject Scores")
+plt.xlabel("Subjects")
+plt.ylabel("Scores")
+plt.ylim(0, 100)
+plt.show()
+
+# Matplotlib Q3
+
+x1, y1 = [1, 2, 3, 4, 5], [2, 4, 5, 4, 5]
+x2, y2 = [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]
+
+plt.scatter(x1, y1, color='blue', label='Dataset 1')
+plt.scatter(x2, y2, color='red', label='Dataset 2')
+plt.title("Scatter Plot")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.show()
+
+# Matplotlib Q4
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+ax1.plot(x, y) 
+ax1.set_title("Squares")
+ax1.set_xlabel("x")
+ax1.set_ylabel("y")
+
+ax2.bar(subjects, scores)
+ax2.set_title("Subject Scores")
+ax2.set_xlabel("Subjects")
+ax2.set_ylabel("Scores")
+ax2.set_ylim(0, 100)
+
+plt.tight_layout()  
+plt.show()
