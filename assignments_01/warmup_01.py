@@ -138,3 +138,50 @@ ax2.set_ylim(0, 100)
 
 plt.tight_layout()  
 plt.show()
+
+#-----Descriptive Statistics-----
+# Descriptive Statistics Q1
+
+data = [12, 15, 14, 10, 18, 22, 13, 16, 14, 15]
+print(f"Mean: {np.mean(data)}")
+print(f"Median: {np.median(data)}")
+print(f"Standard Deviation: {np.std(data)}")
+
+# Descriptive Statistics Q2
+
+plt.figure(figsize=(8, 5))
+plt.hist(np.random.normal(65, 10, 500), bins=20, color='skyblue', edgecolor='black')
+plt.title("Distribution of Scores")
+plt.xlabel("Score")
+plt.ylabel("Frequency")
+plt.show()
+
+# Descriptive Statistics Q3
+
+group_a = [55, 60, 63, 70, 68, 62, 58, 65]
+group_b = [75, 80, 78, 90, 85, 79, 82, 88]
+plt.boxplot([group_a, group_b], labels=['Group A', 'Group B'])
+plt.title("Score Comparison")
+plt.ylabel("Score")
+plt.show()
+
+# Descriptive Statistics Q4
+
+normal_data = np.random.normal(50, 5, 200)
+skewed_data = np.random.exponential(10, 200)
+plt.boxplot([normal_data, skewed_data], labels=['Normal', 'Exponential'])
+plt.title("Distribution Comparison")
+plt.ylabel("Value")
+plt.show()
+# Exponential distribution is more skewed. 
+# Median provides a more appropriate measure of central tendency for skewed data; 
+# mean is more appropriate for normal distribution.
+
+# Descriptive Statistics Q5
+
+data1 = [10, 12, 12, 16, 18]
+data2 = [10, 12, 12, 16, 150]
+print(f"Data1 - Mean: {np.mean(data1)}, Median: {np.median(data1)}")
+print(f"Data2 - Mean: {np.mean(data2)}, Median: {np.median(data2)}")
+# Mean in data2 is significantly higher than median due to the outlier (150), 
+# which skews the mean.
