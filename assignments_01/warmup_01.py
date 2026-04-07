@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.stats import pearsonr
+import seaborn as sns
 
 # --- Pandas ---
 # Pandas Q1
@@ -236,3 +238,50 @@ t_stat, p_val = stats.ttest_ind(group_a, group_b)
 if p_val < 0.05:
     print("The test results suggest that Group B has significantly higher scores " \
     "than Group A, and this difference is unlikely to be due to chance.")
+
+#-----Correlation------
+# Correlation Q1
+
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
+
+corr_matrix = np.corrcoef(x, y)
+print(corr_matrix)
+print(f"Correlation coefficient: {corr_matrix[0, 1]}")
+
+# I expected correlation to be strong because y = 2x.  
+
+# Correlation Q2
+
+x = [1,  2,  3,  4,  5,  6,  7,  8,  9, 10]
+y = [10, 9,  7,  8,  6,  5,  3,  4,  2,  1]
+
+r, p = pearsonr(x, y)
+print(f"Correlation: {round(r, 2)}")
+print(f"P-value: {round(p, 4)}")
+
+# Correlation Q3
+
+people = {
+    "height": [160, 165, 170, 175, 180],
+    "weight": [55,  60,  65,  72,  80],
+    "age":    [25,  30,  22,  35,  28]
+}
+df = pd.DataFrame(people)
+correlation_matrix = df.corr()
+print(correlation_matrix)
+
+# Correlation Q4
+
+x = [10, 20, 30, 40, 50]
+y = [90, 75, 60, 45, 30]
+plt.scatter(x, y)
+plt.title("Negative Correlation")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.show()
+
+# Correlation Q5
+
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
