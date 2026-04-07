@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 
 # --- Pandas ---
 # Pandas Q1
@@ -185,3 +186,53 @@ print(f"Data1 - Mean: {np.mean(data1)}, Median: {np.median(data1)}")
 print(f"Data2 - Mean: {np.mean(data2)}, Median: {np.median(data2)}")
 # Mean in data2 is significantly higher than median due to the outlier (150), 
 # which skews the mean.
+
+#-----Hypothesis Testing-----
+# Hypothesis Testing Q1
+
+group_a = [72, 68, 75, 70, 69, 73, 71, 74]
+group_b = [80, 85, 78, 83, 82, 86, 79, 84]
+
+t_stat, p_val = stats.ttest_ind(group_a, group_b)
+print(f"t-statistic: {t_stat}")
+print(f"p-value: {p_val}")
+
+# Hypothesis Testing Q2
+
+if p_val < 0.05:
+    print("The difference is statistically significant.")
+else:
+    print("No statistically significant difference detected.")
+
+# Hypothesis Testing Q3
+
+before = [60, 65, 70, 58, 62, 67, 63, 66]
+after  = [68, 70, 76, 65, 69, 72, 70, 71]
+
+t_stat, p_val = stats.ttest_rel(before, after)
+
+print(f"t-statistic: {t_stat:.3f}")
+print(f"p-value: {p_val:.6f}")
+
+# Hypothesis Testing Q4
+
+scores = [72, 68, 75, 70, 69, 74, 71, 73]
+t_stat, p_val = stats.ttest_1samp(scores, 70)
+print(f"t-statistic: {t_stat:.3f}")
+print(f"p-value: {p_val:.6f}")
+
+# Hypothesis Testing Q5
+
+stats.ttest_ind(group_a, group_b, alternative="less")
+print(f"p-value: {p_val:.6f}")
+
+# Hypothesis Testing Q6
+
+group_a = [72, 68, 75, 70, 69, 73, 71, 74]
+group_b = [80, 85, 78, 83, 82, 86, 79, 84]
+
+t_stat, p_val = stats.ttest_ind(group_a, group_b)
+
+if p_val < 0.05:
+    print("The test results suggest that Group B has significantly higher scores " \
+    "than Group A, and this difference is unlikely to be due to chance.")
