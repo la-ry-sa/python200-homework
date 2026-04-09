@@ -7,9 +7,11 @@ def create_series(arr):
     values = pd.Series(arr)
     return values
 
+@task
 def clean_data(series):
     return series.dropna()
 
+@task
 def summarize_data(series):
     return {
         "mean": series.mean(),
