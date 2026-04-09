@@ -2,9 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+from scipy.stats import pearsonr
+from prefect import task, flow, get_run_logger
 
 #----Task 1: Data Loading and Cleaning----
 
+@task(retries=3, retry_delay_seconds=2)
 def load_data():
 
     filename_list = []
@@ -23,19 +26,13 @@ def load_data():
     combined_df = pd.concat(df_list, ignore_index=True)
     combined_df['Happiness score'] = combined_df['Happiness score'].combine_first(combined_df['Ladder score'])
     combined_df.drop(columns=['Ladder score'], inplace=True)
-#    print(combined_df.head())
-#    print(combined_df.columns)
-#    print(combined_df.shape)
-    
     combined_df['Year'] = combined_df['Year'].astype(int)
-    print(combined_df.dtypes)
     combined_df.to_csv("outputs/merged_happiness.csv", index=False)
     return combined_df
 
-combined_df = load_data()
-
 #----Task 2: Compute Statistics----
 
+@task(retries=3, retry_delay_seconds=2)
 def compute_stats(df):
     happiness_score_stats = {
         "mean": df['Happiness score'].mean(),
@@ -43,13 +40,15 @@ def compute_stats(df):
         "std": df['Happiness score'].std()
     }
     stats_by_year_region = df.groupby(['Year', 'Regional indicator'])['Happiness score'].agg(['mean', 'median', 'std'])
-    print(happiness_score_stats)
-    print(stats_by_year_region)
-
-compute_stats(combined_df)
+    logger = get_run_logger()
+    logger.info("Happiness Score Statistics:")
+    logger.info(happiness_score_stats)
+    logger.info("Statistics by Year and Region:")
+    logger.info(stats_by_year_region)
 
 #----Task 3: Visual Exploration----
 
+@task(retries=3, retry_delay_seconds=2)
 def visualize_data(df):
 
 # A histogram of all happiness scores across all years. Save as happiness_histogram.png.
@@ -96,50 +95,47 @@ def visualize_data(df):
     plt.savefig('outputs/correlation_heatmap.png')
     plt.close()
 
-visualize_data(combined_df)
-
 #----Task 4: Hypothesis Testing----
 
 # run an independent samples t-test comparing happiness scores from 2019 to 2020
 # Log the t-statistic, p-value, the mean happiness for each group, and a 
 # plain-language interpretation of the result at alpha = 0.05. 
+@task(retries=3, retry_delay_seconds=2)
 def hypothesis_testing(df):
     
     scores_2019 = df[df['Year'] == 2019]['Happiness score']
     scores_2020 = df[df['Year'] == 2020]['Happiness score']
 
     t_stat, p_val = stats.ttest_ind(scores_2019, scores_2020)
-
-    print("t-statistic:", t_stat)
-    print("p-value:", p_val)
-    print("Mean happiness score in 2019:", scores_2019.mean())
-    print("Mean happiness score in 2020:", scores_2020.mean())
+    logger = get_run_logger()
+    logger.info("t-statistic: %f", t_stat)
+    logger.info("p-value: %f", p_val)
+    logger.info("Mean happiness score in 2019: %f", scores_2019.mean())
+    logger.info("Mean happiness score in 2020: %f", scores_2020.mean())
 
     if p_val < 0.05:
-        print("The difference is statistically significant.")
+        logger.info("The difference is statistically significant.")
     else:
-        print("No statistically significant difference detected.")
+        logger.info("No statistically significant difference detected.")
 
     w_europe = df[(df['Year'] == 2019)&(df['Regional indicator'] == 'Western Europe')]['Happiness score']
     l_america = df[(df['Year'] == 2019)&(df['Regional indicator'] == 'Latin America and Caribbean')]['Happiness score']
     t_stat, p_val = stats.ttest_ind(w_europe, l_america)
-    print("t-statistic:", t_stat)
-    print("p-value:", p_val)
-    print("Mean happiness score in Western Europe in 2019:", w_europe.mean())
-    print("Mean happiness score in Latin America and Caribbean in 2019:", l_america.mean())
+    logger.info("t-statistic: %f", t_stat)
+    logger.info("p-value: %f", p_val)
+    logger.info("Mean happiness score in Western Europe in 2019: %f", w_europe.mean())
+    logger.info("Mean happiness score in Latin America and Caribbean in 2019: %f", l_america.mean())
     if p_val < 0.05:
-        print("The difference is statistically significant.")
+        logger.info("The difference is statistically significant.")
     else:
-        print("No statistically significant difference detected.")
-
-hypothesis_testing(combined_df)
+        logger.info("No statistically significant difference detected.")
 
 #-----Task 5: Correlation and Multiple Comparisons-----
 
 # For each numeric explanatory variable, compute the Pearson correlation with happiness score using 
 # scipy.stats.pearsonr and log the coefficient and p-value.
 
-
+@task(retries=3, retry_delay_seconds=2)
 def correlation_analysis(df):
     numeric_df = df.select_dtypes(include='number')
     counter = 0
@@ -151,45 +147,45 @@ def correlation_analysis(df):
             counter += 1
     
     adjusted_alpha = 0.05 / counter
-    print(f"Adjusted alpha for multiple comparisons: {adjusted_alpha:.4f}")
+    logger = get_run_logger()
+    logger.info("Adjusted alpha for multiple comparisons: %f", adjusted_alpha)
 
     for column, r, p in results:
         sig_original = p < 0.05
         sig_adjusted = p < adjusted_alpha
 
-        print(
-            f"{column}: r={r:.2f}, p={p:.4f}, "
-            f"significant (0.05): {sig_original}, "
-            f"significant (adjusted): {sig_adjusted}"
+        logger.info(
+            "%s: r=%f, p=%f, significant (0.05): %s, significant (adjusted): %s",
+            column, r, p, sig_original, sig_adjusted
         )
-
-correlation_analysis(combined_df)
 
 #------Task 6: Summary Report------
 
+@task(retries=3, retry_delay_seconds=2)
 def summary_report(df):
 
     # Total number of countries and years in the merged dataset.
     countries = df['Country'].unique()
     years = df['Year'].unique()
-    print(f"Number of countries: {len(countries)}")
-    print(f"Number of years: {len(years)}")
+    logger = get_run_logger()
+    logger.info("Number of countries: %d", len(countries))
+    logger.info("Number of years: %d", len(years))
 
     # The top 3 and bottom 3 regions by mean happiness score.
     region_means = df.groupby('Regional indicator')['Happiness score'].mean()
     top_3 = region_means.nlargest(3)
     bottom_3 = region_means.nsmallest(3)
 
-    print("\nTop 3 regions by mean happiness score:")
+    logger.info("\nTop 3 regions by mean happiness score:")
     for region, mean_score in top_3.items():
-        print(f"  {region}: {mean_score:.2f}")
+        logger.info("  %s: %f", region, mean_score)
 
-    print("\nBottom 3 regions by mean happiness score:")
+    logger.info("\nBottom 3 regions by mean happiness score:")
     for region, mean_score in bottom_3.items():
-        print(f"  {region}: {mean_score:.2f}")
+        logger.info("  %s: %f", region, mean_score)
 
     # A plain-language interpretation of the t-test comparing 2019 and 2020 happiness scores.
-    print('The independent samples t-test comparing 2019 and 2020 happiness scores did not find ' \
+    logger.info('The independent samples t-test comparing 2019 and 2020 happiness scores did not find ' \
     'a statistically significant difference at the 0.05 level. ' \
     'In this dataset, average happiness in 2020 was not meaningfully different from 2019 overall.)')
     
@@ -208,11 +204,22 @@ def summary_report(df):
 
     if bonferroni_significant:
         strongest = max(bonferroni_significant, key=lambda x: abs(x[1]))
-        print(
-            f"Strongest correlation after Bonferroni correction: {strongest[0]} "
-            f"(r={strongest[1]:.2f}, p={strongest[2]:.4f})"
+        logger.info(
+            "Strongest correlation after Bonferroni correction: %s "
+            "(r=%f, p=%f)",
+            strongest[0], strongest[1], strongest[2]
         )
     else:
-        print("No variables remained significant after Bonferroni correction.")
+        logger.info("No variables remained significant after Bonferroni correction.")
 
-summary_report(combined_df)
+@flow
+def happiness_pipeline():
+    combined_df = load_data()
+    compute_stats(combined_df)
+    visualize_data(combined_df)
+    hypothesis_testing(combined_df)
+    correlation_analysis(combined_df)
+    summary_report(combined_df)
+
+if __name__ == "__main__":
+    happiness_pipeline()
