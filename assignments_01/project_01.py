@@ -164,3 +164,55 @@ def correlation_analysis(df):
         )
 
 correlation_analysis(combined_df)
+
+#------Task 6: Summary Report------
+
+def summary_report(df):
+
+    # Total number of countries and years in the merged dataset.
+    countries = df['Country'].unique()
+    years = df['Year'].unique()
+    print(f"Number of countries: {len(countries)}")
+    print(f"Number of years: {len(years)}")
+
+    # The top 3 and bottom 3 regions by mean happiness score.
+    region_means = df.groupby('Regional indicator')['Happiness score'].mean()
+    top_3 = region_means.nlargest(3)
+    bottom_3 = region_means.nsmallest(3)
+
+    print("\nTop 3 regions by mean happiness score:")
+    for region, mean_score in top_3.items():
+        print(f"  {region}: {mean_score:.2f}")
+
+    print("\nBottom 3 regions by mean happiness score:")
+    for region, mean_score in bottom_3.items():
+        print(f"  {region}: {mean_score:.2f}")
+
+    # A plain-language interpretation of the t-test comparing 2019 and 2020 happiness scores.
+    print('The independent samples t-test comparing 2019 and 2020 happiness scores did not find ' \
+    'a statistically significant difference at the 0.05 level. ' \
+    'In this dataset, average happiness in 2020 was not meaningfully different from 2019 overall.)')
+    
+    # The variable most strongly correlated with happiness score (after Bonferroni correction)
+    numeric_df = df.select_dtypes(include='number')
+    results = []
+    for column in numeric_df.columns:
+        if column != 'Happiness score':
+            r, p = stats.pearsonr(df['Happiness score'], numeric_df[column])
+            results.append((column, r, p))
+
+    adjusted_alpha = 0.05 / len(results)
+    bonferroni_significant = [
+    (column, r, p) for column, r, p in results if p < adjusted_alpha
+]
+
+    if bonferroni_significant:
+        strongest = max(bonferroni_significant, key=lambda x: abs(x[1]))
+        print(
+            f"Strongest correlation after Bonferroni correction: {strongest[0]} "
+            f"(r={strongest[1]:.2f}, p={strongest[2]:.4f})"
+        )
+    else:
+        print("No variables remained significant after Bonferroni correction.")
+
+summary_report(combined_df)
