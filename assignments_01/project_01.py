@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy import stats
 
 #----Task 1: Data Loading and Cleaning----
 
@@ -87,7 +88,6 @@ def visualize_data(df):
 
 # A correlation heatmap (using sns.heatmap() with annot=True) showing the Pearson correlations between all numeric columns. 
 
-    import seaborn as sns
     plt.figure(figsize=(10,6))
     numeric_df = df.select_dtypes(include='number')
     corr = numeric_df.corr()
@@ -96,5 +96,71 @@ def visualize_data(df):
     plt.savefig('outputs/correlation_heatmap.png')
     plt.close()
 
-
 visualize_data(combined_df)
+
+#----Task 4: Hypothesis Testing----
+
+# run an independent samples t-test comparing happiness scores from 2019 to 2020
+# Log the t-statistic, p-value, the mean happiness for each group, and a 
+# plain-language interpretation of the result at alpha = 0.05. 
+def hypothesis_testing(df):
+    
+    scores_2019 = df[df['Year'] == 2019]['Happiness score']
+    scores_2020 = df[df['Year'] == 2020]['Happiness score']
+
+    t_stat, p_val = stats.ttest_ind(scores_2019, scores_2020)
+
+    print("t-statistic:", t_stat)
+    print("p-value:", p_val)
+    print("Mean happiness score in 2019:", scores_2019.mean())
+    print("Mean happiness score in 2020:", scores_2020.mean())
+
+    if p_val < 0.05:
+        print("The difference is statistically significant.")
+    else:
+        print("No statistically significant difference detected.")
+
+    w_europe = df[(df['Year'] == 2019)&(df['Regional indicator'] == 'Western Europe')]['Happiness score']
+    l_america = df[(df['Year'] == 2019)&(df['Regional indicator'] == 'Latin America and Caribbean')]['Happiness score']
+    t_stat, p_val = stats.ttest_ind(w_europe, l_america)
+    print("t-statistic:", t_stat)
+    print("p-value:", p_val)
+    print("Mean happiness score in Western Europe in 2019:", w_europe.mean())
+    print("Mean happiness score in Latin America and Caribbean in 2019:", l_america.mean())
+    if p_val < 0.05:
+        print("The difference is statistically significant.")
+    else:
+        print("No statistically significant difference detected.")
+
+hypothesis_testing(combined_df)
+
+#-----Task 5: Correlation and Multiple Comparisons-----
+
+# For each numeric explanatory variable, compute the Pearson correlation with happiness score using 
+# scipy.stats.pearsonr and log the coefficient and p-value.
+
+
+def correlation_analysis(df):
+    numeric_df = df.select_dtypes(include='number')
+    counter = 0
+    results = []
+    for column in numeric_df.columns:
+        if column != 'Happiness score':
+            r, p = stats.pearsonr(df['Happiness score'], numeric_df[column])
+            results.append((column, r, p))
+            counter += 1
+    
+    adjusted_alpha = 0.05 / counter
+    print(f"Adjusted alpha for multiple comparisons: {adjusted_alpha:.4f}")
+
+    for column, r, p in results:
+        sig_original = p < 0.05
+        sig_adjusted = p < adjusted_alpha
+
+        print(
+            f"{column}: r={r:.2f}, p={p:.4f}, "
+            f"significant (0.05): {sig_original}, "
+            f"significant (adjusted): {sig_adjusted}"
+        )
+
+correlation_analysis(combined_df)
