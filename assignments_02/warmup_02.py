@@ -98,11 +98,7 @@ print(f"R² on the test set: {model.score(X_test, y_test)}")
 
 # Q4
 
-# Now add smoker as a second feature and fit a new model.
 X_full = np.column_stack([age, smoker])
-#Split, fit, and print the test R². Compare it to the R² from Question 3 -- 
-#does adding the smoker flag help? Print both coefficients:
-
 X_train, X_test, y_train, y_test = train_test_split(
     X_full, cost, test_size=0.2, random_state=42
 )
@@ -119,10 +115,6 @@ print("smoker coefficient: ", model_full.coef_[1])
 
 # Q5
 
-# Using the two-feature model from Linear Regression Question 4, create this plot for 
-# the test set. Add a diagonal reference line, a title "Predicted vs Actual", 
-# labeled axes, and save to outputs/predicted_vs_actual.png.
-
 y_pred_test = model_full.predict(X_test)
 plt.figure(figsize=(10, 5))
 plt.scatter(y_pred_test, y_test, alpha=0.7)
@@ -134,3 +126,6 @@ plt.ylabel("Actual Medical Costs")
 plt.title("Predicted vs Actual")
 plt.savefig('outputs/predicted_vs_actual.png')
 plt.close()
+
+# A point above the line means actual cost is higher than predicted, 
+# while a point below the line means actual cost is lower than predicted.
