@@ -64,3 +64,39 @@ plt.ylabel("Final Grade (G3)")
 plt.tight_layout()
 plt.savefig('assignments_02/outputs/absences_vs_grade.png')
 plt.close()
+
+#-----------Task 3: Exploratory Data Analysis-------
+
+correlations_g3 = df_cleaned.drop(columns=['G3']).corrwith(df_cleaned['G3'])
+print(correlations_g3)
+corr_ranked = correlations_g3.sort_values(ascending=False)
+print(corr_ranked)
+
+# G2 and G1 have the strongest correlation with G3, which is expected.
+# A bit surprising is that mother's education has a stronger correlation 
+# with G3 than father's education. It was also a bit unexpected that age 
+# has a negative correlation.
+
+# Scatter plot of absences vs G3.
+plt.figure(figsize=(10,6))
+plt.scatter(df_cleaned['absences'], df_cleaned['G3'], color='green')
+plt.title('Absences vs. Final Grades')
+plt.xlabel('Absences')
+plt.ylabel('Final Grades')
+plt.savefig('assignments_02/outputs/absences_vs_g3.png')
+plt.close()
+
+# The scatter plot shows a negative relationship between absences and final grades.
+
+# Box plot of G3 grades by mother's education level.
+plt.figure(figsize=(10,6))
+df_cleaned.boxplot(column='G3', by='Medu', grid=False)
+plt.title('Final Grades by Mother\'s Education Level')
+plt.suptitle('')
+plt.xlabel('Mother\'s Education Level')
+plt.ylabel('Final Grades (G3)')
+plt.savefig('assignments_02/outputs/g3_by_mother_education.png')
+plt.close()
+
+# The box plot shows that students whose mothers have higher education levels 
+# tend to have higher final grades.
