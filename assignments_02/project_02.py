@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 from scipy.stats import pearsonr
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
 
 #--------Task 1: Load and Explore--------
 
@@ -100,3 +103,53 @@ plt.close()
 
 # The box plot shows that students whose mothers have higher education levels 
 # tend to have higher final grades.
+
+#-------Task 4: Baseline Model-------
+
+X = df_cleaned[['failures']]
+y = df_cleaned['G3']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Slope:", model.coef_[0])
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print("RMSE:", rmse)
+print("R²:", r2)
+
+# Slope of about -1.4 means that with each failure final grade decreases by
+# about 1.4 points. RMSE of ~2.97 means that on average, the model's predictions 
+# are off by about 3 points.
+# R² of ~0.09 is lower than I expected and indicates that number of failures is 
+# not a strong predictor of final grades.   
+
+#-------Task 5: Build the Full Model-------
+
+feature_cols = ["failures", "Medu", "Fedu", "studytime", "higher", "schoolsup",
+                "internet", "sex", "freetime", "activities", "traveltime"]
+X = df_cleaned[feature_cols].values
+y = df_cleaned["G3"].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Slope:", model.coef_[0])
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print("RMSE:", rmse)
+print("R²:", r2)
+
+for name, coef in zip(feature_cols, model.coef_):
+    print(f"{name:12s}: {coef:+.3f}")
