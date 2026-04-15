@@ -153,3 +153,83 @@ print("R²:", r2)
 
 for name, coef in zip(feature_cols, model.coef_):
     print(f"{name:12s}: {coef:+.3f}")
+
+# R² of ~0.15 is almost twice the baseline model, indicating that the additional
+# features improve the model's ability to predict G3.
+# Among the coefficients, I find the most surprising that father's education 
+# suddenly has more impact than mother's education.
+# If I built a model for production, I would most probably omit activities as it 
+# doesn't have a strong impact on G3, and traveltime.
+# Probably schoolsup, because it is a yes/no variable and also struggling students 
+# are more likely to have school support.
+
+#-----Task 6: Evaluate and Summarize-------
+
+plt.figure(figsize=(5, 5))
+plt.scatter(y_pred, y_test, alpha=0.7)
+min_val = min(y_test.min(), y_pred.min())
+max_val = max(y_test.max(), y_pred.max())
+plt.xlim(min_val, max_val)
+plt.ylim(min_val, max_val)
+plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2)
+plt.title('Predicted vs Actual (Full Model)')
+plt.xlabel('Predicted Grades')
+plt.ylabel('Actual Grades')
+plt.savefig('assignments_02/outputs/predicted_vs_actual_g3.png')
+plt.close()
+
+# The model some tendency to underestimate higher grades.Dots above the line 
+# indicate underestimation; dots below the line indicate overestimation.
+
+# After removing rows where G3 was 0, the dataset had 357 students. The test 
+# set contained 72 students, or about 20% of the filtered data.
+# The RMSE was about 2.86, which means the model’s predictions are typically off 
+# by about 2.86 grade points on a 0–20 scale.
+# The R² was about 0.15, meaning the model explains about 15% of the variation in final grades.
+# Two biggest positive coefficients were Internet access and higher education 
+# aspirations, while 2 the biggest negative were school support and number of failures.
+# One result that surprised me was that father’s education had a stronger coefficient 
+# than mother’s education in the full model, even though mother’s education showed 
+# a slightly stronger simple correlation earlier.
+
+#------Neglected Feature: The Power of G1-------
+
+feature_cols = ["failures", "Medu", "Fedu", "studytime", "higher", "schoolsup",
+                "internet", "sex", "freetime", "activities", "traveltime", "G1"]
+X = df_cleaned[feature_cols].values
+y = df_cleaned["G3"].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Slope:", model.coef_[0])
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print("RMSE:", rmse)
+print("R²:", r2)
+for name, coef in zip(feature_cols, model.coef_):
+    print(f"{name:12s}: {coef:+.3f}")
+plt.figure(figsize=(5, 5))
+plt.scatter(y_pred, y_test, alpha=0.7)
+min_val = min(y_test.min(), y_pred.min())
+max_val = max(y_test.max(), y_pred.max())
+plt.xlim(min_val, max_val)
+plt.ylim(min_val, max_val)
+plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2)
+plt.title('Predicted vs Actual (Full Model With G1)')
+plt.xlabel('Predicted Grades')
+plt.ylabel('Actual Grades')
+plt.savefig('assignments_02/outputs/predicted_vs_actual_g3_with_g1.png')
+plt.close()
+
+# Higher R² of ~0.75 means that G1 is a strong predictor of G3, but it is not 
+# causing the grade. G1 and G3 are both influenced by the same underlying factors, 
+# such as a student’s academic performance and study habits.
+# It is a useful model to identify students who might struggle, since G1 correlates 
+# strongly with G3.
+# To intevene earlier, educators could use other features that are available before G1, 
+# such as study time, attendance, or engagement metrics.
