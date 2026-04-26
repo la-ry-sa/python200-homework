@@ -164,6 +164,8 @@ n = 40 # based on the plot
 X_train_pca = pca.transform(X_train_scaled)[:, :n]
 X_test_pca  = pca.transform(X_test_scaled)[:, :n]
 
+#------------Task 3: A Classifier Comparison-----------------
+
 from sklearn.neighbors import KNeighborsClassifier
 knn_unscaled = KNeighborsClassifier(n_neighbors=5)
 knn_unscaled.fit(X_train, y_train)
@@ -244,8 +246,6 @@ print(pairs_tree[:10])
 
 # There's some difference between the two models. Tree model has words 'George' and
 # 'our' which don't seem to be typical for spam emails.
-# RF models is consistent with my intuition - expected exclamation marks, long capital
-# runs, money, free etc.
 
 top = pairs_rf[:10]
 names = [pair[0] for pair in top]
@@ -258,3 +258,85 @@ plt.xlabel("Feature Name")
 plt.ylabel("Importance")
 plt.savefig("assignments_03/outputs/feature_importances.png")
 plt.close()
+
+# RF model is mostly consistent with my intuition - expected exclamation marks, 
+# long capital runs, money, free etc. 'Remove' was somewhat unexpected though.
+
+#----------Task 4: Cross-Validation---------------
+
+cv_knn_unscaled = cross_val_score(knn_unscaled, X_train, y_train, cv=5)
+print("KNN unscaled")
+
+print(f"Mean: {cv_knn_unscaled.mean():.3f}")
+print(f"Std:  {cv_knn_unscaled.std():.3f}")
+
+cv_knn_scaled = cross_val_score(knn_scaled, X_train_scaled, y_train, cv=5)
+print("KNN scaled")
+
+print(f"Mean: {cv_knn_scaled.mean():.3f}")
+print(f"Std:  {cv_knn_scaled.std():.3f}")
+
+cv_knn_pca = cross_val_score(knn_pca, X_train_pca, y_train, cv=5)
+print("KNN PCA")
+
+print(f"Mean: {cv_knn_pca.mean():.3f}")
+print(f"Std:  {cv_knn_pca.std():.3f}")
+
+cv_prod_tree = cross_val_score(prod_tree, X_train, y_train, cv=5)
+print("Tree Model")
+
+print(f"Mean: {cv_prod_tree.mean():.3f}")
+print(f"Std:  {cv_prod_tree.std():.3f}")
+
+cv_rf = cross_val_score(rf, X_train, y_train, cv=5)
+print("Random Forest Model")
+
+print(f"Mean: {cv_rf.mean():.3f}")
+print(f"Std:  {cv_rf.std():.3f}")
+
+cv_model_1 = cross_val_score(model_1, X_train_scaled, y_train, cv=5)
+print("Logistic Regression Scaled")
+
+print(f"Mean: {cv_model_1.mean():.3f}")
+print(f"Std:  {cv_model_1.std():.3f}")
+
+cv_model_2 = cross_val_score(model_2, X_train_pca, y_train, cv=5)
+print("Logistic Regression PCA")
+
+print(f"Mean: {cv_model_2.mean():.3f}")
+print(f"Std:  {cv_model_2.std():.3f}")
+
+# RF model is the most accurate with the mean of 0.954.
+# Logistics Regressin with PCA model is the most stable with std of 0.004.
+# Ranking is consistent with the single train/test split.
+
+#--------------Task 5: Building a Prediction Pipeline------------
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
+
+rf_pipeline = Pipeline([
+    ("model", RandomForestClassifier(n_estimators=100, random_state=42))
+])
+
+rf_pipeline.fit(X_train, y_train)
+rf_pipeline_pred = rf_pipeline.predict(X_test)
+print(classification_report(y_test, rf_pipeline_pred))
+
+best_non_tree = Pipeline([
+    ("scaler", StandardScaler()),
+    ("pca", PCA(n_components=40)),
+    ("model", LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))
+])
+
+best_non_tree.fit(X_train, y_train)
+non_tree_pred = best_non_tree.predict(X_test)
+print(classification_report(y_test, non_tree_pred))
+
+# The pipelines do not have the same structure. The tree-based pipeline includes 
+# only the Random Forest model, while the non-tree pipeline also includes scaling 
+# and PCA because those models require preprocessing. Pipelines are useful because 
+# they ensure consistent data processing, reduce errors, and make models easier to 
+# reuse and deploy.
