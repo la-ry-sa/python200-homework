@@ -180,3 +180,70 @@ before giving a final answer. Do not use markdown formatting.
 result = get_completion(task2 + problem)
 
 print(result)
+
+#----------Prompt Question 5 — Structured Output---------------
+
+import json
+
+review = "I've been using this tool for three months. It handles large datasets well, \
+but the UI is clunky and the export options are limited."
+
+task3 = "Please analyze the review below and return the result only as valid JSON " \
+"with keys sentiment, confidence (a float from 0 to 1), and reason (one sentence). " \
+"Just the JSON object, nothing else."
+
+try:
+    raw_result = get_completion(task3 + review)
+    result = json.loads(raw_result)
+    print(raw_result)
+    for key, value in result.items():
+        print(f"{key}: {value}")
+
+except json.JSONDecodeError:
+    print(f"Error parsing the results: {raw_result}")
+
+#------------Prompt Question 6 — Delimiters-------------
+
+user_text = "First boil a pot of water. Once boiling, add a handful of salt and the \
+pasta. Cook for 8-10 minutes until al dente. Drain and toss with your sauce of choice."
+
+user_text2 = "Hi, how are you doing today? Any dinner plans?"
+
+prompt = f"""
+You will be given text inside triple backticks.
+If it contains step-by-step instructions, rewrite them as a numbered list.
+If it does not contain instructions, respond with exactly: "No steps provided."
+
+```{user_text}```
+"""
+
+prompt2 = f"""
+You will be given text inside triple backticks.
+If it contains step-by-step instructions, rewrite them as a numbered list.
+If it does not contain instructions, respond with exactly: "No steps provided."
+
+```{user_text2}```
+"""
+
+result1 = get_completion(prompt)
+print(f"Instructions text: {result1}")
+
+result2 = get_completion(prompt2)
+print(f"Non-instructions text: {result2}")
+
+# Delimiters prevent prompt injection by clearly separating user input from instructions.
+
+#-------------Local Models with Ollama-------------
+#-------------Ollama Question 1------------------
+
+ollama_output = """
+A large language model is an AI system trained on massive amounts of text data to 
+understand and generate human-like language. It uses machine learning to analyze vast 
+datasets, enabling it to learn patterns and perform tasks such as writing, answering 
+questions, and even creating stories.
+"""
+
+prompt = "Explain what a large language model is in two sentences."
+
+api_output = get_completion(prompt)
+print(api_output)
