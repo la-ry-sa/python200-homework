@@ -131,7 +131,9 @@ background2 = "Ten years as a literary translator; college degree in linguistics
 generate_cover_letter(job_title, background)
 generate_cover_letter(job_title, background2)
 
-# The examples help the model to set the correct tone and avoid generic cliches.
+# The examples help the model to set the correct tone and avoid generic cliches,
+# recognize patterns and make results more consistent. It also helps to make sure
+# the output is formatted correctly.
 
 #-------------------------Task 4: Moderation Check-------------------
 
@@ -226,3 +228,21 @@ def run_chatbot():
 
 if __name__ == "__main__":
     run_chatbot()
+
+#-----------------Task 6: Ethics Reflection--------------------
+
+# Your bot was trained on text written by and about certain kinds of people. 
+# How might this produce biased advice? Could it favor certain communication styles, 
+# industries, or cultural backgrounds?
+
+# The bot could make recommendations that wouldn't really work for an underepresented 
+# group. It could be oriented to the IT industry if it was trained mostly by IT 
+# professional.
+
+# What could go wrong if a job-seeker submitted the bot's output directly — without 
+# reviewing it — to a real employer?
+
+# Copy-pasting the output without reviewing can create embarrassing situations.
+# Many bots use introduction or conclusion phrases, like "Here's a cover letter you 
+# could use" or "Let me know if you need to adjust anything". It can also
+# contain factual mistakes.

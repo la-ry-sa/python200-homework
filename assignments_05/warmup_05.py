@@ -182,6 +182,9 @@ result = get_completion(task2 + problem)
 
 print(result)
 
+# Asking for a step by step reasoning improves accuracy because following the model's
+# logic helps spot errors faster and verify the approach.
+
 #----------Prompt Question 5 — Structured Output---------------
 
 import json
