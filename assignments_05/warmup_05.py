@@ -165,7 +165,8 @@ result = get_completion(task + example + example1 + example2 + reviews_text)
 
 print(result)
 
-# todo: add comment
+# For this task, any approach worked in a similar way. For more complicated tasks,
+# I'd definitely use more examples.
 
 #-------------Prompt Question 4 — Chain of Thought-----
 
@@ -247,3 +248,7 @@ prompt = "Explain what a large language model is in two sentences."
 
 api_output = get_completion(prompt)
 print(api_output)
+
+# Ollama reply used more primitive vocabulary. Otherwise both replies are similar. 
+# 1. Advantage or running locally - not relying on Internet connection, can save replies.
+# 2. Disadvantage of running locally - local models have less memory and capacity.
