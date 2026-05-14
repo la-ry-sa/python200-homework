@@ -185,3 +185,102 @@ for q in questions:
         print(f"Similarity Score: {node_with_score.score:.4f}")
         print(f"Text Snippet: {text[:150]}...")
         print("-" * 30)
+
+# For each question, only the first retrieved chunk had relevant information.
+# Model sounds confident about the info it retrieved. Neutral informative tone.
+# Only chunks 2 and 3 were unexpected.
+
+#--------------LlamaIndex Question 2-------------
+
+query_engine = index.as_query_engine(similarity_top_k=1)
+
+print(f"\nQ: {questions[0]}")
+response = query_engine.query(questions[0])
+print("A:", response)
+    
+for node_with_score in response.source_nodes:
+    text = node_with_score.node.get_content()
+    text = " ".join(text.split())
+    print(f"Node ID: {node_with_score.node.node_id}")
+    print(f"Similarity Score: {node_with_score.score:.4f}")
+    print(f"Text Snippet: {text[:150]}...")
+    print("-" * 30)
+
+query_engine = index.as_query_engine(similarity_top_k=5)
+
+print(f"\nQ: {questions[0]}")
+response = query_engine.query(questions[0])
+print("A:", response)
+    
+for node_with_score in response.source_nodes:
+    text = node_with_score.node.get_content()
+    text = " ".join(text.split())
+    print(f"Node ID: {node_with_score.node.node_id}")
+    print(f"Similarity Score: {node_with_score.score:.4f}")
+    print(f"Text Snippet: {text[:150]}...")
+    print("-" * 30)
+
+# Both responses provide relevant and correct information. The response based on 
+# top_k=5 is slightly longer but it doesn't provide any visible benefits over response
+# one. Only one document in the folder is relevant to this question.
+
+#-----------------LlamaIndex Question 3----------------
+
+query_engine = index.as_query_engine(similarity_top_k=3)
+
+question_3 = "When's Brightleaf expected to reach its financial peak?"
+print(f"\nQ: {question_3}")
+response = query_engine.query(question_3)
+print("A:", response)
+    
+for node_with_score in response.source_nodes:
+    text = node_with_score.node.get_content()
+    text = " ".join(text.split())
+    print(f"Node ID: {node_with_score.node.node_id}")
+    print(f"Similarity Score: {node_with_score.score:.4f}")
+    print(f"Text Snippet: {text[:150]}...")
+    print("-" * 30)
+
+# I expected the model to reply there's not enough data to make predictions.
+# Instead, it just used the past numbers that were available. To improve model's
+# performance I'd tell it in the prompt to pay attention it to the timeframe 
+# and clearly distinguish if a question is about the past, present or future.
+
+#--------------LlamaIndex Question 4-------------------
+
+from llama_index.llms.openai import OpenAI
+from llama_index.core.evaluation import FaithfulnessEvaluator, RelevancyEvaluator
+
+# Create Judge LLM
+llm = OpenAI(model="gpt-4o-mini", temperature=0.2)
+
+# Define evaluator
+faithfulness_evaluator = FaithfulnessEvaluator(llm=llm)
+relevancy_evaluator = RelevancyEvaluator(llm=llm)
+
+q = "What employee benefits does BrightLeaf offer?"
+
+response = query_engine.query(q)
+
+# Evaluate faithfulness and relevancy
+faithfulness_result = faithfulness_evaluator.evaluate_response(query=q, response=response)
+print("Faithfulness Evaluation: " + str(faithfulness_result.score))
+
+relevancy_result = relevancy_evaluator.evaluate_response(query=q, response=response)
+print("Relevancy Result: " + str(relevancy_result.score))
+
+q2 = "Are we ever going to run out of solar energy?"
+response2 = query_engine.query(q2)
+print(response2)
+
+faithfulness_result = faithfulness_evaluator.evaluate_response(query=q2, response=response2)
+print("Faithfulness Evaluation: " + str(faithfulness_result.score))
+
+relevancy_result = relevancy_evaluator.evaluate_response(query=q2, response=response2)
+print("Relevancy Result: " + str(relevancy_result.score))
+
+# Faithfulness 1.0 = answer grounded in retrieved chunks. 0.0 = contradicts context.
+# Relevancy = were the right chunks retrieved, not whether the answer is correct.
+# q2 scored 1.0 on both despite the answer coming from model's general knowledge,
+# not the documents — showing LLM-as-a-judge can be fooled.
+# Simple accuracy metrics don't work for RAG — answers are free-form, not right/wrong.
