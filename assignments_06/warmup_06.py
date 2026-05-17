@@ -31,10 +31,10 @@ else:
 #---------Concepts Question 3-------------
 
 # steps = [
+#     "Receive the user's query", -- get the actual task
 #     "Extract text from source documents", -- receive data
 #     "Split text into chunks", -- start processing
 #     "Convert text chunks into embeddings", -- convert into digital data
-#     "Receive the user's query", -- get the actual task
 #     "Embed the user's query", -- transform the query
 #     "Retrieve the most relevant chunks", -- find matching data
 #     "Inject retrieved chunks into the prompt", -- create a prompt based on the data
@@ -124,6 +124,8 @@ query = "How do I sign up for rewards?"
 #  exact matches in the documents.
 
 simple_keyword_retrieval(query, documents)
+
+# Prediction was correct; no surprises.
 
 #---------------Semantic RAG Concepts---------------
 
