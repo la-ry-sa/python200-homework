@@ -163,7 +163,7 @@ logging.getLogger("openai").setLevel(logging.WARNING)
 from llama_index.readers.file import PDFReader
 parser = PDFReader()
 docs = SimpleDirectoryReader(
-    "assignments_06/brightleaf_pdfs",
+    "assignments_06/resources/brightleaf_pdfs",
     file_extractor={".pdf": parser}
 ).load_data()
 index = VectorStoreIndex.from_documents(docs)
