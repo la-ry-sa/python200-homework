@@ -63,3 +63,36 @@ for q in questions:
 
 #-----------Step 5: Find a Failure--------------------
 
+vague_q = "What's your cat policy? I'd like to visit your cafe with my cat."
+
+print(f"\nQ: {vague_q}")
+response = query_engine.query(vague_q)
+print("A:", response)
+        
+for node_with_score in response.source_nodes:
+    text = node_with_score.node.get_content()
+    text = " ".join(text.split())
+    print(f"Node ID: {node_with_score.node.node_id}")
+    print(f"Similarity Score: {node_with_score.score:.4f}")
+    print(f"Text Snippet: {text[:200]}...")
+
+# I asked about the cat policy and expected a failure because it's not covered
+# in any of the documents. The model made an assumption cats are not allowed,
+# but the correct answer would be "I don't have any info on this".
+# The tone of the wrong answer was confident, meaning fact-checking is a must for 
+# AI-generated responses and they can't be trusted blindly at this point.
+# I would add an instruction to explicitly say I don't have the info on this.
+
+#----------------Step 6: Reflection-----------------------------
+
+# 1. It took 86 lines including comments for the equivalent LlamaIndex 
+# implementation. Using a framework allows to save time and resources
+# since some actions are pre-defined.
+# 2. It could be useful for any business or organization. For example, 
+# another use case for such assistant would be a summer camp website:
+# help user get an idea of what's available, dates of camps, steps to
+# reserve a spot, available discounts etc. It's more flexible than a regular 
+# FAQ page because it can answer questions that are not listed. It is important 
+# though to instruct model to not make assumptions when information is not available. 
+# 3. RAG can't prevent hallucinations. Even while retrieving correct context,
+# models tend to provide answers to questions they don't have enough information about. 
