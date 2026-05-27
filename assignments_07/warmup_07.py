@@ -589,6 +589,83 @@ print(json.dumps(messages, indent=2, default=str))
 csv_manager = CsvManager(RESOURCES_DIR)
 
 @tool
+def list_csv_files() -> dict:
+    """List available CSV files in resources/.
+
+    Returns:
+        A dict with a "files" list, or a message if none are found.
+    """
+    return csv_manager.list_csv_files()
+
+
+@tool
+def load_csv(filename: str) -> dict:
+    """Load a CSV file from resources/ and make it the active dataset.
+
+    Args:
+        filename: CSV filename in resources/. You can pass "bike_commute" or "bike_commute.csv".
+
+    Returns:
+        A dict with a status message and column names, or an error dict.
+    """
+    return csv_manager.load_csv(filename)
+
+
+@tool
+def get_columns() -> list[str] | dict:
+    """Return column names for the currently loaded CSV.
+
+    Returns:
+        A list of column names, or an error dict if no CSV is loaded.
+    """
+    return csv_manager.get_columns()
+
+
+@tool
+def summarize_columns(columns: list[str] | None = None) -> dict:
+    """Return summary stats for selected columns (or all columns). 
+    This includes count, mean, std, min, max, and percentiles for numeric columns,
+    or count, unique, top, freq for categorical columns.
+
+    Args:
+        columns: Column names to summarize. If None, summarizes all columns.
+
+    Returns:
+        A dict of summary statistics (from pandas.describe), or an error dict.
+    """
+    return csv_manager.summarize_columns(columns)
+
+
+@tool
+def describe_column(column: str) -> dict:
+    """Describe a single column (basic stats) for the requested column.
+    This includes count, mean, std, min, max, and percentiles for numeric column,
+    or count, unique, top, freq for categorical column.
+
+    Args:
+        column: The name of the column to describe.
+
+    Returns:
+        A dict of basic stats for the column, or an error dict.
+    """
+    return csv_manager.describe_column(column)
+
+@tool
+def plot_data(y: str, x: str | None = None, plot_type: str = "line") -> str | dict:
+    """Plot from the active CSV.
+
+    Args:
+        y: Column name to plot on the y-axis. 
+        x: Column name to plot on the x-axis. If None, use row index.
+        plot_type: "line" or "scatter". Scatter requires x and y.
+
+    Returns:
+        Generates and shows the plot. 
+        Retirms a short success message string, or an error dict/string.
+    """
+    return csv_manager.plot_data(y=y, x=x, plot_type=plot_type)
+
+@tool
 def compute_correlation(col1: str, col2: str) -> dict:
     """Compute the Pearson correlation between two columns in the loaded DataFrame.
        Returns the correlation coefficient and p-value.
@@ -603,3 +680,73 @@ print(compute_correlation.description)
 
 # Smolagents automatically generated names and types from type hints. 
 # Developer needs to provide a docstring for the function description and argument descriptions.
+
+#-------------------------------Q8---------------------------------
+
+model_to_use = "gpt-4o-mini"  # default model ID
+model = OpenAIServerModel(
+    api_key=os.environ["OPENAI_API_KEY"],
+    model_id=model_to_use,
+)
+
+TOOLS = [
+    list_csv_files,
+    load_csv,
+    get_columns,
+    summarize_columns,
+    describe_column,
+    plot_data,
+    compute_correlation
+]
+
+SYSTEM_PROMPT = (
+    "You are a small data assistant to help analyze files stored in resources/. "
+    "Use the available tools to do any work requested (do not guess). "
+    "Keep answers short and student-friendly."
+)
+
+CODE_INSTRUCTIONS = """
+You are a helpful CSV analysis assistant.
+
+You can do two kinds of actions:
+1) Call the provided tools.
+2) Write and execute Python code when tools are not enough.
+
+Rules:
+- Prefer tools for simple tasks.
+- IMPORTANT: If the user requests plot styling (color, marker, title text, labels, grid, etc.)
+  that the plot_data tool cannot control, DO NOT call plot_data.
+  Instead, write matplotlib code directly so the plot matches the request.
+  If code execution fails, do not fall back to plot_data when the user requested styling (like color). 
+  Explain what failed and what you would need to proceed.
+- Be honest: only claim you did something if the code or tool actually did it.
+- Assume the active dataset lives in csv_manager.df after a CSV is loaded.
+"""
+
+code_agent = CodeAgent(
+    tools=TOOLS,
+    model=model,
+    instructions=CODE_INSTRUCTIONS,
+    additional_authorized_imports=["pandas", "matplotlib.pyplot", "numpy"],
+    max_steps=8,
+)
+
+tool_agent = ToolCallingAgent(tools=TOOLS,
+                         model=model,
+                         instructions=SYSTEM_PROMPT,)
+
+prompt = "Load bike_commute.csv. Plot avg_heart_rate vs duration_min as a scatter plot with green dots."
+
+response_tool = tool_agent.run(prompt)
+response_code = code_agent.run(prompt, additional_args={"csv_manager": csv_manager})
+
+print(f"Tool agent response: {response_tool}")
+print(f"Code agent response: {response_code}")
+
+# 1. ToolCallingAgent didn't change the dot color, since it only uses tools where everything is predefined. CodeAgent wrote the code and made the dots green because it is able to adjust based on the requrements.
+# 2. ToolCallingAgent is more useful for repeated tasks. CodeAgent is more useful for varying requirements.
+
+#-------------------------Q9-------------------------
+
+# 1. A sample task for the ToolCallingAgent: calculate a correlation between two columns on multiple dataframes. It will require the same steps every time and there's no need to adjust the code.
+# 2. Using the CodeAgent can pose a security risk since it has freedom to write and execute the code, so it can potentially delete files or reveal sensitive data.
