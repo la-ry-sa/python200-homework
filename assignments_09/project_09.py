@@ -1,3 +1,5 @@
+# https://youtu.be/HU-WjR79PT0
+
 from azure.storage.blob import ContainerClient
 from azure.identity import DefaultAzureCredential
 from datetime import date
