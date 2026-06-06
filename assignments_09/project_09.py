@@ -53,5 +53,5 @@ df = pd.DataFrame(json.loads(raw.decode("utf-8"))["hourly"])
 print(f"\nFirst 5 rows:")
 print(df.head())
 
-with open("assignments_09/outputs/weather_raw.json", "w", encoding="utf-8") as file:
+with open("outputs/weather_raw.json", "w", encoding="utf-8") as file:
     file.write(raw.decode("utf-8"))
