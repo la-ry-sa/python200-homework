@@ -64,7 +64,7 @@ container_client = ContainerClient(
 
 def list_container(container_client):
     for blob in container_client.list_blobs():
-        print(blob.name, blob.size)
+        print(f"Blob name: {blob.name}, blob size: {blob.size}")
 
 #------------Blob Storage Question 4-------------------
 
