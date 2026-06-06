@@ -69,4 +69,4 @@ def list_container(container_client):
 #------------Blob Storage Question 4-------------------
 
 def upload_text(container_client, blob_name, text):
-    container_client.upload_blob(text.encode("utf-8"), blob_name=blob_name, overwrite=True)
+    container_client.upload_blob(blob_name, text.encode("utf-8"), overwrite=True)
