@@ -28,7 +28,7 @@ try:
     raw = container.download_blob(blob_path).readall()
     data = json.loads(raw.decode("utf-8"))
 except Exception:
-    with open("output/weather_raw.json", "r", encoding="utf-8") as file:
+    with open("assignments_10/resources/weather_raw.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
 hourly = data["hourly"]
@@ -91,4 +91,4 @@ print(df.head())
 #--------------Step 5: Save Output-------------------------
 
 with open("outputs/first_10_records.json", "w", encoding="utf-8") as file:
-    file.write(df.head(10).to_json(orient='records', indent=2).decode("utf-8"))
+    file.write(df.head(10).to_json(orient='records', indent=2))
