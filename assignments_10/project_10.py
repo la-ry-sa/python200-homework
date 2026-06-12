@@ -22,8 +22,14 @@ today = date.today().isoformat()
 credential = DefaultAzureCredential()
 container = ContainerClient(ACCOUNT_URL, CONTAINER, credential=credential)
 
-raw = container.download_blob(f"raw/{today}/weather.json").readall()
-data = json.loads(raw.decode("utf-8"))
+blob_path = f"raw/{today}/weather.json"
+
+try:
+    raw = container.download_blob(blob_path).readall()
+    data = json.loads(raw.decode("utf-8"))
+except Exception:
+    with open("output/weather_raw.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
 
 hourly = data["hourly"]
 records = []
@@ -85,4 +91,4 @@ print(df.head())
 #--------------Step 5: Save Output-------------------------
 
 with open("outputs/first_10_records.json", "w", encoding="utf-8") as file:
-    file.write(df.head(10).decode("utf-8"))
+    file.write(df.head(10).to_json(orient='records', indent=2).decode("utf-8"))
