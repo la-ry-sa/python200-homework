@@ -20,7 +20,7 @@ A data pipeline that processes 10 files per run now needs to process 10,000 file
 Gmail - SaaS
 Azure Virtual Machines - Iaas
 Azure App Service - PaaS
-AWS S3 (Simple Storage Service) - SaaS
+AWS S3 (Simple Storage Service) - IaaS
 GitHub Codespaces - PaaS
 Snowflake - PaaS
 
