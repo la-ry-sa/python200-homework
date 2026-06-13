@@ -1,5 +1,14 @@
 #----------------------Part 2: Project -- LLM Transform Pipeline--------------------
 
+#-----------------------Step 6: Reflect--------------------------
+
+# This project could possibly have been done using deterministic code instead of LLM.
+# Rule based approach could provide similar results for most temperature and
+# precipitation values, but it would require gathering possible scenarios and 
+# translating them into multiple lines of code.
+# LLMs require fewer hard-coded rules, while rule-based code is more predictable
+# and easier to maintain.
+
 import json
 import os
 from datetime import date
@@ -83,7 +92,9 @@ print(f"Uploaded {len(payload)} bytes to {processed_path}")
 
 #----------------Step 4: Spot-Check-----------------------
 
-df = pd.DataFrame(enriched)
+raw_check = container.download_blob(processed_path).readall()
+data_check = json.loads(raw_check.decode("utf-8"))
+df = pd.DataFrame(data_check)
 print(df["conditions"].value_counts())
 print(f"\nFirst 5 rows:")
 print(df.head())

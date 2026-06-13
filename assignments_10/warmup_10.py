@@ -13,7 +13,7 @@
 
 # Calculate the average of a list of numbers.
 
-# Code. Simple math formula.
+# Deterministic code. Simple math formula.
 
 # Extract the company name from a freeform job title like "Sr. Data Eng @ Acme Corp 
 # (contract)".
@@ -22,7 +22,7 @@
 
 # Determine whether a product review is more than 100 words long.
 
-# Code. Programmable and reproducible.
+# Deterministic code. Programmable and reproducible.
 
 #----------------LLMs as Transform Question 2---------------------
 
