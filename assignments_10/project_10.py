@@ -28,7 +28,7 @@ try:
     raw = container.download_blob(blob_path).readall()
     data = json.loads(raw.decode("utf-8"))
 except Exception:
-    with open("assignments_10/resources/weather_raw.json", "r", encoding="utf-8") as file:
+    with open("assignments_10/resources/weather.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
 hourly = data["hourly"]
@@ -60,7 +60,7 @@ def make_user_message(record):
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 enriched = []
-for i, record in enumerate(records):
+for i, record in enumerate(records[:24]):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -71,7 +71,7 @@ for i, record in enumerate(records):
     raw_label = response.choices[0].message.content.strip().lower()
     label = raw_label if raw_label in VALID_LABELS else "unknown"
     enriched.append({**record, "conditions": label})
-    if (i + 1) % 24 == 0:
+    if (i + 1) % 6 == 0:
         print(f"  Processed {i + 1} records...")
 
 #-----------------Step 3: Write------------------------
@@ -90,5 +90,5 @@ print(df.head())
 
 #--------------Step 5: Save Output-------------------------
 
-with open("outputs/first_10_records.json", "w", encoding="utf-8") as file:
+with open("assignments_10/outputs/first_10_records.json", "w", encoding="utf-8") as file:
     file.write(df.head(10).to_json(orient='records', indent=2))

@@ -32,13 +32,14 @@
 
 # Improved prompt:
 
-# system = "Categorize a review: positive, negative or mixed. Use one word only.
-# If you're unable to categorize, use 'unknown'."
+# system = "Summarize a review: write one sentence that conveys the key idea of the 
+# review. Return a JSON with a single summary field. No introduction, just a JSON object."
 
 #---------------LLMs as Transform Question 3------------------------
 
 # 1. 50,000 seconds or 13.8 hours.
-# 2. Using BatchApi allows to handle it more efficiently. 
+# 2. Using BatchApi allows to handle it more efficiently, as it processes requests 
+# asynchonously at reduced cost.
 
 #----------------Azure OpenAI-------------------------------------
 
