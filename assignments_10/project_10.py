@@ -1,5 +1,7 @@
 #----------------------Part 2: Project -- LLM Transform Pipeline--------------------
 
+# Video: https://youtu.be/5rh9EyeUl_0
+
 #-----------------------Step 6: Reflect--------------------------
 
 # This project could possibly have been done using deterministic code instead of LLM.
