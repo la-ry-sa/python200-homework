@@ -17,6 +17,8 @@ def call_api():
 #----------------------Prefect Question 3-------------------------
 
 # I would check Prefect logs to see what kind of error caused Transform to fail.
+# Select the Flow Run, click into the failed Task Run, and view the Logs panel.
+# I'd look for details like error message, retries history etc.
 
 #---------------------Production Patterns-------------------------
 
