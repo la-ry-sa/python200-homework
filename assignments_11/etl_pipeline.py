@@ -27,11 +27,8 @@ SYSTEM_PROMPT = (
 
 VALID_LABELS = {"good", "marginal", "bad"}
 
-latitude = 47.674
-longitude = -122.122
-
 @task(retries=2, retry_delay_seconds=10)
-def extract_weather():
+def extract_weather(latitude: float, longitude: float):
     url = (
         f"https://api.open-meteo.com/v1/forecast"
         f"?latitude={latitude}&longitude={longitude}"
@@ -82,13 +79,58 @@ def transform(data: dict, max_records: int) -> list:
             label = raw_label if raw_label in VALID_LABELS else "unknown"
 
             if (i + 1) % 6 == 0:
-                print(f"  Classified {i + 1}/{len(records)} records")
+                print(f"  Classified {i + 1}/{max_records} records")
         else: 
             label = 'not_classified'
 
         enriched.append({**record, "running_condition": label})
 
-
-
     print(f"Transform complete: {len(enriched)} records enriched")
     return enriched
+
+#-----------------Load task-------------------
+
+@task
+def load(records: list, blob_path: str) -> None:
+    credential = DefaultAzureCredential()
+
+    container = ContainerClient(
+        ACCOUNT_URL,
+        CONTAINER,
+        credential=credential
+    )
+
+    payload = json.dumps(records).encode("utf-8")
+
+    container.upload_blob(
+        blob_path,
+        payload,
+        overwrite=True
+    )
+
+    print(f"Loaded {len(payload)} bytes to {blob_path}")
+
+#-----------------------Flow-------------------------
+
+@flow(log_prints=True)
+def etl_pipeline(
+    latitude = 47.674,
+    longitude = -122.122
+):
+    today = date.today().isoformat()
+
+    blob_path = f"final/{today}/weather_etl.json"
+
+    data = extract_weather(latitude, longitude)
+
+    enriched = transform(
+        data,
+        max_records=MAX_RECORDS
+    )
+
+    load(enriched, blob_path)
+
+    print(f"Pipeline complete. Results at {blob_path}")
+
+if __name__ == "__main__":
+    etl_pipeline()
