@@ -1,5 +1,7 @@
 #--------------Project -- Full ETL Pipeline---------------------
 
+# Video link: https://youtu.be/4AglUgasNfc
+
 import json
 import os
 import requests

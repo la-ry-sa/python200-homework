@@ -2,8 +2,9 @@
 
 #----------------------Prefect Question 1------------------------
 
-# @task is used for an isolated function that can be used in @flow.
-# @flow calls the tasks. I wouldn't decorate the C to F conversion function with @task,
+# @task is used for an individual step that can be used in @flow.
+# @flow orchestrates tasks and defines the entry point. 
+# I wouldn't decorate the C to F conversion function with @task, 
 # because it's a separate action and not part of a flow.
 
 #----------------------Prefect Question 2-------------------------
