@@ -42,6 +42,12 @@ print(f"Cluster centers:\n{kmeans.cluster_centers_}")
 print(f"Number of samples in each cluster: {np.bincount(labels)}")
 figsize=(10, 5)
 plt.scatter(X_clusters[:, 0], X_clusters[:, 1], c=labels, cmap='viridis', s=60, alpha=0.7)
+plt.scatter(
+    kmeans.cluster_centers_[:, 0],
+    kmeans.cluster_centers_[:, 1],
+    c="black",
+    s= 150
+)
 plt.title("Student Clusters Found by K-Means")
 plt.xlabel("Study Hours (synthetic scale)")
 plt.ylabel("Exam Scores (synthetic scale)")

@@ -142,14 +142,23 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 model = LinearRegression()
 model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
 
 print("Slope:", model.coef_[0])
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-r2 = r2_score(y_test, y_pred)
 
-print("RMSE:", rmse)
-print("R²:", r2)
+y_pred_train = model.predict(X_train)
+y_pred_test = model.predict(X_test)
+
+rmse_train = np.sqrt(mean_squared_error(y_train, y_pred_train))
+r2_train = r2_score(y_train, y_pred_train)
+
+print("RMSE train:", rmse_train)
+print("R² train:", r2_train)
+
+rmse_test = np.sqrt(mean_squared_error(y_test, y_pred_test))
+r2_test = r2_score(y_test, y_pred_test)
+
+print("RMSE test:", rmse_test)
+print("R² test:", r2_test)
 
 for name, coef in zip(feature_cols, model.coef_):
     print(f"{name:12s}: {coef:+.3f}")
