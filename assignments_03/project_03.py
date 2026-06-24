@@ -160,7 +160,8 @@ plt.ylabel("Cumulative Explained Variance")
 plt.axhline(0.9)
 plt.savefig("assignments_03/outputs/pca_variance.png")
 plt.close()
-n = 40 # based on the plot
+n = 42 # based on the plot
+print("The number of components where variance first reaches 90%:", n)
 X_train_pca = pca.transform(X_train_scaled)[:, :n]
 X_test_pca  = pca.transform(X_test_scaled)[:, :n]
 

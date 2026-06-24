@@ -57,7 +57,9 @@ preds = knn.predict(X_test_scaled)
 
 print("Accuracy for scaled data:", accuracy_score(y_test, preds))
 
-# Scaling reduced performance slightly. This might happen because 
+# Scaling reduced performance slightly. This happened because large numbers
+# can distort the results for distance-based models. Therefore, results after
+# scaling are more reliable.
 
 # Q3
 
@@ -65,6 +67,9 @@ cv_scores = cross_val_score(knn, X_train, y_train, cv=5)
 print(cv_scores)
 print(f"Mean: {cv_scores.mean():.3f}")
 print(f"Std:  {cv_scores.std():.3f}")
+
+# This result is more trustworthy vs. single split because training data is rotated 
+# and used more evenly. Standard deviation is low meaning results are consistent.
 
 # Q4
 
@@ -105,6 +110,10 @@ tree.fit(X_train, y_train)
 preds1 = tree.predict(X_test)
 print("Accuracy:", accuracy_score(y_test, preds1))
 print(classification_report(y_test, preds1))
+
+# Decision tree model showed higher accuracy.
+# It's performance doesn't depend on distance calculations, so scaled vs.
+# unscaled data doesn't affect the result.
 
 #------------Logistic Regression------------
 
@@ -165,6 +174,8 @@ plt.tight_layout()
 plt.colorbar(scatter, label='Digit')
 plt.savefig("assignments_03/outputs/pca_2d_projection.png")
 plt.close()
+
+# The plot shows that same digit images tend to cluster together.
 
 # Q3
 
