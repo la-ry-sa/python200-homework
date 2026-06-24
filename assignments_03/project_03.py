@@ -94,6 +94,13 @@ response.raise_for_status()
 df = pd.read_csv(BytesIO(response.content), header=None)
 df.columns = COLUMN_NAMES
 print(df.head())
+print("Dataset shape:", df.shape)
+print("\nClass distribution:")
+print(df["spam_label"].value_counts())
+print(df["spam_label"].value_counts(normalize=True))
+
+# Classes are imbalanced - there's more ham than spam. Raw accuracy isn't enough
+# to interpret.
 
 plt.figure(figsize=(10,6))
 df.boxplot(column='word_freq_free', by='spam_label', grid = False)
@@ -143,9 +150,17 @@ plt.close()
 
 X = df.drop("spam_label", axis=1)
 y = df["spam_label"]
+
+# 80% training, 20% testing. Random state of 42 makes results reproducible.
+# stratify=y preserves spam/ham proportions for both sets.
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
+
+# Scaling because PCA is sensitive to scales. Scaler is fit on the training data
+#a and applied to test data to prevent data leakage.
+
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
@@ -216,11 +231,19 @@ model_1 = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 model_1.fit(X_train_scaled, y_train)
 pred_1 = model_1.predict(X_test_scaled)
 print("Accuracy:", accuracy_score(y_test, pred_1))
+print(classification_report(y_test, pred_1))
 
 model_2 = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 model_2.fit(X_train_pca, y_train)
 pred_2 = model_2.predict(X_test_pca)
 print("Accuracy:", accuracy_score(y_test, pred_2))
+print(classification_report(y_test, pred_2))
+
+# Summary:
+# RF model has the highest performance and accuracy. 
+# Scaling improved KNN, and PCA gave similar Logistic Regression results
+# with fewer features.
+# False negatives are more important because they don't block spam.
 
 cm = confusion_matrix(y_test, pred_rf)
 print(cm)
@@ -229,6 +252,10 @@ disp.plot(colorbar=False)
 plt.title("Confusion Matrix")
 plt.savefig("assignments_03/outputs/best_model_confusion_matrix.png")
 plt.close()
+
+# The matrix shows RF model correctly classifies most emails.
+# It produces more false negatives than false positives, meaning that 
+# some spam is not filtered out.
 
 feature_imp_rf = rf.feature_importances_
 feature_imp_tree = prod_tree.feature_importances_

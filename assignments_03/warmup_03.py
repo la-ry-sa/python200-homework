@@ -26,6 +26,7 @@ y = iris.target
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
+print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
 # Q2
 
@@ -119,20 +120,20 @@ print(classification_report(y_test, preds1))
 
 # Q1
 
-# When troubleshooting the ValueError, AI suggested a different solver 
-# that is able to handle multiclass
+# To make the code work, update solver to lbfgs. Using liblinear to comply with 
+# the requirements.
 
-model_1 = LogisticRegression(C=0.01, max_iter=1000, solver='lbfgs')
+model_1 = LogisticRegression(C=0.01, max_iter=1000, solver='liblinear')
 model_1.fit(X_train_scaled, y_train)
 print(model_1.C)
 print(np.abs(model_1.coef_).sum())
 
-model_2 = LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs')
+model_2 = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 model_2.fit(X_train_scaled, y_train)
 print(model_2.C)
 print(np.abs(model_2.coef_).sum())
 
-model_3 = LogisticRegression(C=100, max_iter=1000, solver='lbfgs')
+model_3 = LogisticRegression(C=100, max_iter=1000, solver='liblinear')
 model_3.fit(X_train_scaled, y_train)
 print(model_3.C)
 print(np.abs(model_3.coef_).sum())
