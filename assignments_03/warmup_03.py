@@ -26,6 +26,7 @@ y = iris.target
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
+print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
 # Q2
 
@@ -57,7 +58,9 @@ preds = knn.predict(X_test_scaled)
 
 print("Accuracy for scaled data:", accuracy_score(y_test, preds))
 
-# Scaling reduced performance slightly. This might happen because 
+# Scaling reduced performance slightly. This happened because large numbers
+# can distort the results for distance-based models. Therefore, results after
+# scaling are more reliable.
 
 # Q3
 
@@ -65,6 +68,9 @@ cv_scores = cross_val_score(knn, X_train, y_train, cv=5)
 print(cv_scores)
 print(f"Mean: {cv_scores.mean():.3f}")
 print(f"Std:  {cv_scores.std():.3f}")
+
+# This result is more trustworthy vs. single split because training data is rotated 
+# and used more evenly. Standard deviation is low meaning results are consistent.
 
 # Q4
 
@@ -106,24 +112,28 @@ preds1 = tree.predict(X_test)
 print("Accuracy:", accuracy_score(y_test, preds1))
 print(classification_report(y_test, preds1))
 
+# Decision tree model showed higher accuracy.
+# It's performance doesn't depend on distance calculations, so scaled vs.
+# unscaled data doesn't affect the result.
+
 #------------Logistic Regression------------
 
 # Q1
 
-# When troubleshooting the ValueError, AI suggested a different solver 
-# that is able to handle multiclass
+# To make the code work, update solver to lbfgs. Using liblinear to comply with 
+# the requirements.
 
-model_1 = LogisticRegression(C=0.01, max_iter=1000, solver='lbfgs')
+model_1 = LogisticRegression(C=0.01, max_iter=1000, solver='liblinear')
 model_1.fit(X_train_scaled, y_train)
 print(model_1.C)
 print(np.abs(model_1.coef_).sum())
 
-model_2 = LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs')
+model_2 = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 model_2.fit(X_train_scaled, y_train)
 print(model_2.C)
 print(np.abs(model_2.coef_).sum())
 
-model_3 = LogisticRegression(C=100, max_iter=1000, solver='lbfgs')
+model_3 = LogisticRegression(C=100, max_iter=1000, solver='liblinear')
 model_3.fit(X_train_scaled, y_train)
 print(model_3.C)
 print(np.abs(model_3.coef_).sum())
@@ -165,6 +175,8 @@ plt.tight_layout()
 plt.colorbar(scatter, label='Digit')
 plt.savefig("assignments_03/outputs/pca_2d_projection.png")
 plt.close()
+
+# The plot shows that same digit images tend to cluster together.
 
 # Q3
 
